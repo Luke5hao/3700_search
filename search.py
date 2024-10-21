@@ -89,18 +89,95 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** BEGIN YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # print("Start:", problem.getStartState())
+    # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    # print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+
+    start = problem.getStartState()
+    if problem.isGoalState(start): 
+        return []
+    
+    visited = []
+    # Store tuples representing nodes to visit next
+    nodeStack = util.Stack()
+
+    # Push tuple onto stack: starting node and actions needed to get there 
+    nodeStack.push((start, []))
+
+    while not nodeStack.isEmpty():
+        currNode, actions = nodeStack.pop()
+        if currNode not in visited:
+            visited.append(currNode)
+
+            if problem.isGoalState(currNode): 
+                return actions
+            else:
+                for neighbor, action_needed, cost in problem.getSuccessors(currNode):
+                    # Add new action to list of actions in path
+                    new_action = actions + [action_needed]
+                    nodeStack.push((neighbor, new_action))
+
+    # util.raiseNotDefined()
     "*** END YOUR CODE HERE ***"
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** BEGIN YOUR CODE HERE ***"
+
+    start = problem.getStartState()
+    if problem.isGoalState(start): 
+        return []
+    
+    visited = []
+    nodeQueue = util.Queue()
+
+    # Push starting node and actions needed to get there
+    nodeQueue.push((start, []))
+
+    while not nodeQueue.isEmpty():
+        currNode, actions = nodeQueue.pop()
+        if currNode not in visited:
+            visited.append(currNode)
+
+            if problem.isGoalState(currNode):
+                return actions
+            else:
+                for neighbor, action_needed, cost in problem.getSuccessors(currNode):
+                    new_actions = actions + [action_needed]
+                    nodeQueue.push((neighbor, new_actions))
+
     util.raiseNotDefined()
     "*** END YOUR CODE HERE ***"
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
-    "*** BEGIN YOUR CODE HERE ***"
+    "*** BEGIN YOUR CODE HERE ***"  
+
+    visited = []  
+
+    start = problem.getStartState()
+    if problem.isGoalState(start):
+        actions = []
+        return actions
+    
+    # PQ with tuples as elements (node, actions to node, cost to node)
+    pq = util.PriorityQueue()
+    # Set initial priority to 0. .pop() will select lowest priority node first
+    pq.push((start, [], 0), 0)
+
+    while not pq.isEmpty():
+        currNode, actions, cost = pq.pop()
+        if not (currNode in visited):
+            visited.append(currNode)
+            if problem.isGoalState(currNode):
+                return actions
+            else:
+                for neighbor, action_needed, step_cost in problem.getSuccessors(currNode):
+                    new_actions = actions + [action_needed]
+                    new_cost = cost + step_cost
+                    # Set priority = new_cost so that low cost nodes are visited first
+                    pq.push((neighbor, new_actions, new_cost), new_cost)
+
     util.raiseNotDefined()
     "*** END YOUR CODE HERE ***"
 
