@@ -301,7 +301,12 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** BEGIN YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        start = self.startingPosition
+        corners = []
+        
+        # Represent state as its position and corners it has visited.
+        return (start, corners)
+        # util.raiseNotDefined()
         "*** END YOUR CODE HERE ***"        
 
     def isGoalState(self, state: Any):
@@ -309,6 +314,14 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** BEGIN YOUR CODE HERE ***"
+        node = state[0]
+        corners_traveled = state[1]
+
+        if (node in self.corners) and (node not in corners_traveled):
+            corners_traveled.append(node)
+        
+        return (len(corners_traveled) == 4)
+        
         util.raiseNotDefined()
         "*** END YOUR CODE HERE ***"
 
@@ -323,7 +336,6 @@ class CornersProblem(search.SearchProblem):
             is the incremental cost of expanding to that successor
         """
 
-        
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
@@ -334,7 +346,23 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** BEGIN YOUR CODE HERE ***"
-            util.raiseNotDefined()
+            x,y = state[0]
+
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+
+            if not hitsWall:
+                successor_position = (nextx, nexty)
+                successor_corners = state[1].copy()
+
+                if (successor_position in self.corners) and (successor_position not in successor_corners):
+                    successor_corners.append(successor_position)
+
+                successor = ((successor_position, successor_corners), action, 1)
+                successors.append(successor)            
+
+            # util.raiseNotDefined()
             "*** END YOUR CODE HERE ***"            
 
         self._expanded += 1 # DO NOT CHANGE
@@ -371,6 +399,31 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** BEGIN YOUR CODE HERE ***"
+    sum_costs = 0
+    position = state[0]
+
+    # remaining_corners will store corners left to travel to
+    remaining_corners = []
+    for corner in corners:
+        if corner not in state[1]:
+            remaining_corners.append(corner)
+
+    while remaining_corners:
+        man_distances = {}
+        for corner in remaining_corners:
+            man_distances[corner] = util.manhattanDistance(position, corner)
+            
+        # Choose to travel to closest corner by man. distance
+        optimal_corner = min(man_distances, key=man_distances.get)
+        optimal_cost = man_distances[optimal_corner]
+
+        sum_costs += optimal_cost
+        position = optimal_corner
+        del man_distances[optimal_corner]
+        remaining_corners.remove(optimal_corner)
+
+    return sum_costs
+
     util.raiseNotDefined()
     "*** END YOUR CODE HERE ***"
     return 0 # Default to trivial solution

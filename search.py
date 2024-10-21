@@ -98,7 +98,7 @@ def depthFirstSearch(problem: SearchProblem):
         return []
     
     visited = []
-    # Store tuples representing nodes to visit next
+    # FIFO stack representing nodes to visit.
     nodeStack = util.Stack()
 
     # Push tuple onto stack: starting node and actions needed to get there 
@@ -160,7 +160,7 @@ def uniformCostSearch(problem: SearchProblem):
         actions = []
         return actions
     
-    # PQ with tuples as elements (node, actions to node, cost to node)
+    # PQ with tuples as elements: (node, actions to node, cost to node)
     pq = util.PriorityQueue()
     # Set initial priority to 0. .pop() will select lowest priority node first
     pq.push((start, [], 0), 0)
@@ -191,6 +191,33 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** BEGIN YOUR CODE HERE ***"
+
+    visited = []  
+
+    start = problem.getStartState()
+    if problem.isGoalState(start):
+        actions = []
+        return actions
+    
+    # PQ with tuples as elements: (node, actions to node, cost to node)
+    pq = util.PriorityQueue()
+    # Set initial priority to 0. .pop() will select lowest priority node first
+    pq.push((start, [], 0), 0)
+
+    while not pq.isEmpty():
+        currNode, actions, cost = pq.pop()
+        if not (currNode in visited):
+            visited.append(currNode)
+            if problem.isGoalState(currNode):
+                return actions
+            else:
+                for neighbor, action_needed, step_cost in problem.getSuccessors(currNode):
+                    new_actions = actions + [action_needed]
+                    new_cost = cost + step_cost
+                    estimate_additional_cost = heuristic(neighbor, problem)
+                    # Set priority = new_cost so that low cost nodes are visited first
+                    pq.push((neighbor, new_actions, new_cost), new_cost + estimate_additional_cost)
+
     util.raiseNotDefined()
     "*** END YOUR CODE HERE ***"
 
